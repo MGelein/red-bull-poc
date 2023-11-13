@@ -6,6 +6,7 @@ class Network {
   static connections = [];
   static roomConnection;
   static status;
+  static isOwner = false;
 
   static init(roomName, callback) {
     this.status = "Finding network";
@@ -48,6 +49,7 @@ class Network {
     this.room = new Peer(`${GAME_ID}-${name}`);
     this.room.on("open", (id) => {
       console.log("Created room with id", id);
+      this.isOwner = true;
       callback();
     });
     this.room.on("error", (error) => {
