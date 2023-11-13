@@ -29,7 +29,12 @@ class Lobby extends GameState {
     this.readyButton.draw();
   }
 
-  drawPlayer() {}
+  drawPlayer() {
+    textSize(60);
+    let label = "Waiting to start";
+    let tw = textWidth(label);
+    text(label, width / 2 - tw / 2, height / 2 - 30);
+  }
 
   onPressed() {
     if (this.readyButton.isOver(mouseX, mouseY)) {
@@ -39,6 +44,7 @@ class Lobby extends GameState {
 
   onCommand(command, payload) {
     if (command === START_ROUND) {
+      Game.activeRound = payload;
       GameState.setActive("game");
     }
   }

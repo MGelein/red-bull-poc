@@ -1,5 +1,8 @@
 const GAME_ID = "nl-trinn-redbullpoc";
 const START_ROUND = "startRound";
+const SHOW_COLOR = "showColor";
+const MIN_TIME = 5 * 1000;
+const MAX_TIME = 15 * 1000;
 
 class Network {
   static room;
@@ -86,5 +89,8 @@ class Network {
     }
     this.startingGame = true;
     this.sendCommand(START_ROUND, 1);
+    setTimeout(() => {
+      this.sendCommand(SHOW_COLOR, random([colors.orange, colors.blue]));
+    }, 5000); //first game needs 5 more seconds to be setup
   }
 }

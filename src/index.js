@@ -3,6 +3,7 @@ function preload() {
 }
 
 function setup() {
+  colorMode(HSB);
   Assets.load();
   GameState.setActive("boot");
   constrainCanvas(createCanvas(375, 667));
