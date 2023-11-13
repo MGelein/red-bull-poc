@@ -1,9 +1,10 @@
 function setup() {
+  Network.init("TestingRoom");
   constrainCanvas(createCanvas(375, 667));
 }
 
 function draw() {
-  background(0);
+  GameState.draw();
 }
 
 function constrainCanvas({ canvas }) {
