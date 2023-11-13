@@ -24,4 +24,13 @@ class Button {
     rect(-this.w2, -this.h2, this.w, this.h, 4);
     pop();
   }
+
+  isOver(x, y) {
+    return (
+      x > this.x - this.w2 &&
+      x < this.x + this.w2 &&
+      y > this.y - this.h2 &&
+      y < this.y + this.h2
+    );
+  }
 }

@@ -14,6 +14,14 @@ class GameState {
     this.active?.draw();
   }
 
+  static onPressed() {
+    this.active?.onPressed();
+  }
+
+  static onCommand(command, payload) {
+    this.active?.onCommand(command, payload);
+  }
+
   constructor(name) {
     GameState.allStates[name] = this;
   }
@@ -21,4 +29,8 @@ class GameState {
   setup() {}
 
   draw() {}
+
+  onPressed() {}
+
+  onCommand(command, payload) {}
 }

@@ -13,6 +13,10 @@ function draw() {
   GameState.draw();
 }
 
+function mousePressed() {
+  GameState.onPressed();
+}
+
 function constrainCanvas({ canvas }) {
   canvas.style = "";
 }

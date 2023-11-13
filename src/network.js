@@ -1,4 +1,5 @@
 const GAME_ID = "nl-trinn-redbullpoc";
+const START_ROUND = "startRound";
 
 class Network {
   static room;
@@ -6,6 +7,7 @@ class Network {
   static connections = [];
   static roomConnection;
   static status;
+  static startingGame = false;
   static isOwner = false;
 
   static init(roomName, callback) {
@@ -38,7 +40,8 @@ class Network {
     this.roomConnection = this.peer.connect(`${GAME_ID}-${name}`);
     this.roomConnection.on("open", () => {
       this.roomConnection.on("data", (data) => {
-        this.onRoomCommand(data);
+        const { command, payload } = data;
+        GameState.onCommand(command, payload);
       });
       callback();
     });
@@ -70,5 +73,18 @@ class Network {
     });
   }
 
-  static onRoomCommand(data) {}
+  static sendCommand(command, payload) {
+    this.connections.forEach((conn) => conn.send({ command, payload }));
+  }
+
+  static startGame() {
+    if (this.startingGame) {
+      return console.log("You can only start one game at a time");
+    }
+    if (!this.room) {
+      return console.log("You can only start a game if you own a room");
+    }
+    this.startingGame = true;
+    this.sendCommand(START_ROUND, 1);
+  }
 }

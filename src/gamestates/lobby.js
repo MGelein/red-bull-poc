@@ -30,6 +30,18 @@ class Lobby extends GameState {
   }
 
   drawPlayer() {}
+
+  onPressed() {
+    if (this.readyButton.isOver(mouseX, mouseY)) {
+      Network.startGame();
+    }
+  }
+
+  onCommand(command, payload) {
+    if (command === START_ROUND) {
+      GameState.setActive("game");
+    }
+  }
 }
 
 const lobby = new Lobby();
