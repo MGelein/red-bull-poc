@@ -1,6 +1,10 @@
 const GAME_ID = "nl-trinn-redbullpoc";
 const START_ROUND = "startRound";
 const SHOW_COLOR = "showColor";
+const SHOW_RESULT = "showResult";
+const SHOW_WINNER = "showWinner";
+const SHOW_LOST = "showLost";
+const NEW_SCORE = "newScore";
 const MIN_TIME = 5 * 1000;
 const MAX_TIME = 15 * 1000;
 
@@ -12,6 +16,7 @@ class Network {
   static status;
   static startingGame = false;
   static isOwner = false;
+  static scores = {};
 
   static init(roomName, callback) {
     this.status = "Finding network";
@@ -87,11 +92,34 @@ class Network {
   }
 
   static calculateGameResult() {
-    console.log(this.reactions);
+    if (this.reactions.length < 1) return;
+
+    this.reactions.sort((a, b) => {
+      return a.time - b.time;
+    });
+
+    const lostPlayers = this.connections.filter((conn) => {
+      return !this.reactions.some((reaction) => reaction.connection === conn);
+    });
+
+    if (lostPlayers.length > 0) {
+      this.sendGroupCommand(lostPlayers, SHOW_LOST, {});
+      this.lostPlayers.forEach((player) => {
+        this.activePlayers.splice(this.activePlayers.indexOf(player), 1);
+      });
+    } else {
+      const slowest = this.reactions[this.reactions.length - 1].connection;
+      this.sendGroupCommand([slowest], SHOW_LOST, {});
+      this.activePlayers.splice(this.activePlayers.indexOf(slowest), 1);
+    }
   }
 
   static sendCommand(command, payload) {
-    this.connections.forEach((conn) => conn.send({ command, payload }));
+    this.sendGroupCommand(this.connections, command, payload);
+  }
+
+  static sendGroupCommand(group, command, payload) {
+    group.forEach((conn) => conn.send({ command, payload }));
   }
 
   static startGame() {
@@ -101,6 +129,8 @@ class Network {
     if (!this.room) {
       return console.log("You can only start a game if you own a room");
     }
+    this.activePlayers = [...this.connections];
+    this.startRound(1);
   }
 
   static sendReactionTime(time) {
@@ -111,9 +141,13 @@ class Network {
     this.round = round;
     this.startingGame = true;
     this.reactions = [];
-    this.sendCommand(START_ROUND, round);
+    this.sendGroupCommand(this.activePlayers, START_ROUND, round);
     setTimeout(() => {
-      this.sendCommand(SHOW_COLOR, random([colors.orange, colors.blue]));
+      this.sendGroupCommand(
+        this.activePlayers,
+        SHOW_COLOR,
+        random([colors.orange, colors.blue])
+      );
       this.roundEndTimeout = setTimeout(() => {
         this.calculateGameResult();
       }, 10000); //wait at most 10 seconds before showing results
