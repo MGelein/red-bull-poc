@@ -5,6 +5,7 @@ const SHOW_RESULT = "showResult";
 const SHOW_WINNER = "showWinner";
 const SHOW_LOST = "showLost";
 const NEW_SCORE = "newScore";
+const GOTO_LOBBY = "gotoLobby";
 const MIN_TIME = 5 * 1000;
 const MAX_TIME = 15 * 1000;
 
@@ -104,13 +105,22 @@ class Network {
 
     if (lostPlayers.length > 0) {
       this.sendGroupCommand(lostPlayers, SHOW_LOST, {});
-      this.lostPlayers.forEach((player) => {
+      lostPlayers.forEach((player) => {
         this.activePlayers.splice(this.activePlayers.indexOf(player), 1);
       });
     } else {
       const slowest = this.reactions[this.reactions.length - 1].connection;
       this.sendGroupCommand([slowest], SHOW_LOST, {});
       this.activePlayers.splice(this.activePlayers.indexOf(slowest), 1);
+    }
+
+    if (this.activePlayers.length > 1) {
+      this.startRound(this.round + 1);
+    } else {
+      this.sendGroupCommand(this.activePlayers, SHOW_WINNER, {});
+      setTimeout(() => {
+        this.sendCommand(GOTO_LOBBY, {});
+      }, 5000);
     }
   }
 
@@ -139,7 +149,7 @@ class Network {
 
   static startRound(round) {
     this.round = round;
-    this.startingGame = true;
+    this.startingGame = round == 1;
     this.reactions = [];
     this.sendGroupCommand(this.activePlayers, START_ROUND, round);
     setTimeout(() => {

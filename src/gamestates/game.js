@@ -3,6 +3,7 @@ const STAGE_WAITING = "waiting";
 const STAGE_PRESSES = "presses";
 const STAGE_CORRECT = "correct";
 const STAGE_LOST = "lost";
+const STAGE_WIN = "winner";
 const CORRECT_THRESHOLD = 30;
 
 class Game extends GameState {
@@ -34,6 +35,16 @@ class Game extends GameState {
     if (this.stage === STAGE_PRESSES) this.drawPresses();
     if (this.stage === STAGE_CORRECT) this.drawCorrect();
     if (this.stage === STAGE_LOST) this.drawLost();
+    if (this.stage === STAGE_WIN) this.drawWin();
+  }
+
+  drawWin() {
+    background(this.pickedColor);
+    textSize(80);
+    fill(255);
+    let label = "You won!";
+    let tw = textWidth(label);
+    text(label, width / 2 - tw / 2, height / 2 - 40);
   }
 
   drawLost() {
@@ -116,7 +127,7 @@ class Game extends GameState {
   }
 
   onCommand(command, payload) {
-    if (command === SHOW_COLOR) {
+    if (command === SHOW_COLOR && stage != STAGE_LOST) {
       this.stage = STAGE_PRESSES;
       this.pickedColor = payload;
       this.startTime = millis();
@@ -125,6 +136,10 @@ class Game extends GameState {
     }
     if (command === SHOW_LOST) {
       this.stage = STAGE_LOST;
+    }
+
+    if (command === GOTO_LOBBY) {
+      GameState.setActive("lobby");
     }
   }
 
