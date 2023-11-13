@@ -1,6 +1,8 @@
 const STAGE_COUNTDOWN = "countdown";
 const STAGE_WAITING = "waiting";
 const STAGE_PRESSES = "presses";
+const STAGE_CORRECT = "correct";
+const CORRECT_THRESHOLD = 30;
 
 class Game extends GameState {
   static activeRound = 0;
@@ -10,6 +12,7 @@ class Game extends GameState {
   }
 
   setup() {
+    this.correctFrames = 0;
     this.countDown = 2;
     this.stage = STAGE_COUNTDOWN;
     this.hue = random(255);
@@ -28,6 +31,16 @@ class Game extends GameState {
     if (this.stage === STAGE_COUNTDOWN) this.drawCountdown();
     if (this.stage === STAGE_WAITING) this.drawWaiting();
     if (this.stage === STAGE_PRESSES) this.drawPresses();
+    if (this.stage === STAGE_CORRECT) this.drawCorrect();
+  }
+
+  drawCorrect() {
+    background(this.pickedColor);
+    textSize(80);
+    fill(255);
+    let label = "Correct";
+    let tw = textWidth(label);
+    text(label, width / 2 - tw / 2, height / 2 - 40);
   }
 
   drawPresses() {
@@ -37,6 +50,26 @@ class Game extends GameState {
     let label = "Now!";
     let tw = textWidth(label);
     text(label, width / 2 - tw / 2, height / 2 - 40);
+
+    textSize(40);
+    label = "Touches: " + touches.length;
+    tw = textWidth(label);
+    text(label, width / 2 - tw / 2, height / 2 + 60);
+
+    if (touches.length === this.correctAmount) {
+      this.correctFrames++;
+      if (this.correctFrames === 1) {
+        //first frame we are correct, take timestamp
+        this.endTime = millis();
+      }
+      if (this.correctFrames > CORRECT_THRESHOLD) {
+        this.stage = STAGE_CORRECT;
+        Network.sendReactionTime(this.endTime - this.startTime);
+      }
+    } else {
+      this.correctFrames = 0;
+      this.endTime = undefined;
+    }
   }
 
   drawWaiting() {
@@ -69,7 +102,13 @@ class Game extends GameState {
     if (command === SHOW_COLOR) {
       this.stage = STAGE_PRESSES;
       this.pickedColor = payload;
+      this.startTime = millis();
+      this.correctFrames = 0;
     }
+  }
+
+  get correctAmount() {
+    return this.pickedColor === colors.orange ? 2 : 1;
   }
 }
 

@@ -71,9 +71,23 @@ class Network {
       });
 
       connection.on("open", () => {
-        connection.on("data", (data) => {});
+        connection.on("data", (data) => {
+          this.reactions.push({ time: data, connection });
+          console.log("player", connection.peer, " reacted in ", data, "ms");
+          const remaining = this.connections.length - this.reactions.length;
+          console.log(remaining, "reactions remaining");
+
+          if (remaining < 1) {
+            clearTimeout(this.roundEndTimeout);
+            this.calculateGameResult();
+          }
+        });
       });
     });
+  }
+
+  static calculateGameResult() {
+    console.log(this.reactions);
   }
 
   static sendCommand(command, payload) {
@@ -87,10 +101,22 @@ class Network {
     if (!this.room) {
       return console.log("You can only start a game if you own a room");
     }
+  }
+
+  static sendReactionTime(time) {
+    this.roomConnection.send(time);
+  }
+
+  static startRound(round) {
+    this.round = round;
     this.startingGame = true;
-    this.sendCommand(START_ROUND, 1);
+    this.reactions = [];
+    this.sendCommand(START_ROUND, round);
     setTimeout(() => {
       this.sendCommand(SHOW_COLOR, random([colors.orange, colors.blue]));
-    }, random(MIN_TIME, MAX_TIME) + 5000); //first game needs 5 more seconds to be setup
+      this.roundEndTimeout = setTimeout(() => {
+        this.calculateGameResult();
+      }, 10000); //wait at most 10 seconds before showing results
+    }, 5000); //random(MIN_TIME, MAX_TIME) + 5000); //first game needs 5 more seconds to be setup
   }
 }
