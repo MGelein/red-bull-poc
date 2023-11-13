@@ -127,7 +127,7 @@ class Game extends GameState {
   }
 
   onCommand(command, payload) {
-    if (command === SHOW_COLOR && stage != STAGE_LOST) {
+    if (command === SHOW_COLOR && this.stage != STAGE_LOST) {
       this.stage = STAGE_PRESSES;
       this.pickedColor = payload;
       this.startTime = millis();
