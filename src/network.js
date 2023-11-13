@@ -5,11 +5,15 @@ class Network {
   static peer;
   static connections = [];
   static roomConnection;
+  static status;
 
-  static init(roomName) {
+  static init(roomName, callback) {
+    this.status = "Finding network";
     this.createPeer(() => {
+      this.status = "Finding room";
       this.createRoom(roomName, () => {
-        this.joinRoom(roomName);
+        this.status = "Connecting";
+        this.joinRoom(roomName, callback);
       });
     });
   }
@@ -25,7 +29,7 @@ class Network {
     });
   }
 
-  static joinRoom(name) {
+  static joinRoom(name, callback) {
     if (!this.peer?.id) {
       return console.log("Can't join a room without having a peer id yourself");
     }
@@ -35,6 +39,7 @@ class Network {
       this.roomConnection.on("data", (data) => {
         this.onRoomCommand(data);
       });
+      callback();
     });
   }
 
