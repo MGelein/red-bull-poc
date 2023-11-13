@@ -30,10 +30,10 @@ class Lobby extends GameState {
   }
 
   drawPlayer() {
-    textSize(60);
+    textSize(40);
     let label = "Waiting to start";
     let tw = textWidth(label);
-    text(label, width / 2 - tw / 2, height / 2 - 30);
+    text(label, width / 2 - tw / 2, height / 2 - 20);
   }
 
   onPressed() {

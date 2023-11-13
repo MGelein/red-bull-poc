@@ -91,6 +91,6 @@ class Network {
     this.sendCommand(START_ROUND, 1);
     setTimeout(() => {
       this.sendCommand(SHOW_COLOR, random([colors.orange, colors.blue]));
-    }, 5000); //first game needs 5 more seconds to be setup
+    }, random(MIN_TIME, MAX_TIME) + 5000); //first game needs 5 more seconds to be setup
   }
 }
